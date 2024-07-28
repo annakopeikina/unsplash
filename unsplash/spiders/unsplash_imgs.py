@@ -5,6 +5,11 @@ from scrapy.loader import ItemLoader
 from itemloaders.processors import MapCompose, TakeFirst
 from unsplash.items import UnsplashItem
 import logging
+import json
+import csv
+import os
+import requests
+
 
 class UnsplashImgsSpider(CrawlSpider):
     name = "unsplash_imgs"
@@ -24,7 +29,7 @@ class UnsplashImgsSpider(CrawlSpider):
         loader.default_output_processor = TakeFirst()
 
         # Извлечение категорий
-        categories = response.xpath('//a[@class="IQzj8 eziW_"]/text()').getall()
+        categories = response.xpath('//a[contains(@class, "IQzj8")]/text()').getall()
         if categories:
             logging.info(f"Found categories: {categories}")
             loader.add_value('categories', categories)
@@ -40,19 +45,39 @@ class UnsplashImgsSpider(CrawlSpider):
             loader.add_value('local_path', f'images/{name}.jpg')
 
         # Извлечение URL изображения
-        url = response.xpath('//div[@class="MorZF"]/img/@src').get()
-        if url:
-            logging.info(f"Image URL: {url}")
-            loader.add_value('image_urls', [url])
+        image_url = response.xpath('//img[contains(@class, "_2UpQX")]/@src').get()
+        if image_url:
+            logging.info(f"Image URL: {image_url}")
+            loader.add_value('image_urls', image_url)
 
-        # Извлечение заголовка и описания
-        title = response.xpath('//h1/text()').get()
-        description = response.xpath('//meta[@name="description"]/@content').get()
-        if title:
-            logging.info(f"Image title: {title}")
-            loader.add_value('title', title)
-        if description:
-            logging.info(f"Image description: {description}")
-            loader.add_value('description', description)
+        item = loader.load_item()
 
-        yield loader.load_item()
+        # Сохранение данных в JSON и CSV
+        self.save_to_json(item)
+        self.save_to_csv(item)
+
+        # Загрузка изображения
+        self.download_image(item)
+
+        return item
+
+    def save_to_json(self, item):
+        with open('images.json', 'a') as f:
+            json.dump(dict(item), f, ensure_ascii=False, indent=4)
+
+    def save_to_csv(self, item):
+        file_exists = os.path.isfile('images.csv')
+        with open('images.csv', 'a', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=item.keys())
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(item)
+
+    def download_image(self, item):
+        image_url = item.get('image_urls')
+        if image_url:
+            image_name = item.get('local_path')
+            if not os.path.exists('images'):
+                os.makedirs('images')
+            with open(image_name, 'wb') as f:
+                f.write(requests.get(image_url).content)
