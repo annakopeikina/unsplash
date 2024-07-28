@@ -17,8 +17,8 @@ NEWSPIDER_MODULE = "unsplash.spiders"
 #USER_AGENT = "unsplash (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
-
+ROBOTSTXT_OBEY = False
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 
@@ -63,10 +63,29 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'unsplash.pipelines.CustomImagesPipeline': 1,  # Исправлено имя пайплайна
-    'unsplash.pipelines.CsvPipeline': 300,
+    'unsplash.pipelines.CustomImagesPipeline': 1,
+    'unsplash.pipelines.CsvPipeline': 2,
 }
 
+FEEDS = {
+    'output/unsplash_data.json': {
+        'format': 'json',
+        'encoding': 'utf8',
+        'store_empty': False,
+        'fields': None,
+        'indent': 4,
+    },
+    'output/unsplash_data.csv': {
+        'format': 'csv',
+        'encoding': 'utf8',
+        'store_empty': False,
+        'fields': None,
+    },
+}
+# FEED_FORMAT = 'json'
+# FEED_URI = r'C:\Users\annav\OneDrive\Desktop\unsplash\unsplash\unsplash_data.json'
+
+# Store images and additional data
 IMAGES_STORE = r'C:\Users\annav\OneDrive\Desktop\unsplash\unsplash\images'
 IMAGES_URLS_FIELD = 'image_urls'
 IMAGES_RESULT_FIELD = 'images'

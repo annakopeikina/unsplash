@@ -7,12 +7,6 @@ import scrapy
 from itemloaders.processors import TakeFirst, MapCompose, Compose
 
 def process_name(value):
-    '''
-    Функция ничего не делает, оставил для примера, чтобы не забыть.
-
-    :param value:
-    :return:
-    '''
     return value
 
 class ImgparserItem(scrapy.Item):
@@ -28,4 +22,6 @@ class UnsplashItem(scrapy.Item):
     local_path = scrapy.Field()
     image_urls = scrapy.Field()
     images = scrapy.Field()
-
+    description = scrapy.Field(output_processor=TakeFirst())
+    title = scrapy.Field(output_processor=TakeFirst())
+    
