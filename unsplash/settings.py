@@ -65,23 +65,25 @@ USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
 ITEM_PIPELINES = {
     'unsplash.pipelines.CustomImagesPipeline': 1,
     'unsplash.pipelines.CsvPipeline': 2,
+    'unsplash.pipelines.JsonPipeline': 3
 }
 
-FEEDS = {
-    'output/unsplash_data.json': {
-        'format': 'json',
-        'encoding': 'utf8',
-        'store_empty': False,
-        'fields': None,
-        'indent': 4,
-    },
-    'output/unsplash_data.csv': {
-        'format': 'csv',
-        'encoding': 'utf8',
-        'store_empty': False,
-        'fields': None,
-    },
-}
+
+# FEEDS = {
+#     'output/unsplash_data.json': {
+#         'format': 'json',
+#         'encoding': 'utf8',
+#         'store_empty': False,
+#         'fields': None,
+#         'indent': 4,
+#     },
+#     'output/unsplash_data.csv': {
+#         'format': 'csv',
+#         'encoding': 'utf8',
+#         'store_empty': False,
+#         'fields': None,
+#     },
+# }
 # FEED_FORMAT = 'json'
 # FEED_URI = r'C:\Users\annav\OneDrive\Desktop\unsplash\unsplash\unsplash_data.json'
 

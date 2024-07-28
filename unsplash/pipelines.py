@@ -19,12 +19,14 @@ import signal
 import sys
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy.exceptions import DropItem
+import json
 
 class CustomImagesPipeline(ImagesPipeline):
     def file_path(self, request, response=None, info=None, *, item=None):
         image_guid = request.url.split('/')[-1]
+        extension = image_guid.split('.')[-1]  # Получаем расширение файла
         logging.info(f"Saving image with guid: {image_guid}")
-        return f'full/{image_guid}'
+        return f'full/{image_guid}.{extension}'
 
     def item_completed(self, results, item, info):
         image_paths = [x['path'] for ok, x in results if ok]
@@ -35,7 +37,6 @@ class CustomImagesPipeline(ImagesPipeline):
         return item
 
 class CsvPipeline:
-
     def open_spider(self, spider):
         self.file = open('images.csv', 'w', newline='', encoding='utf-8', buffering=1)
         self.exporter = csv.writer(self.file)
@@ -58,3 +59,20 @@ class CsvPipeline:
         self.file.close()
         logging.info('Process interrupted and CSV file closed properly')
         sys.exit(0)
+
+class JsonPipeline:
+    def open_spider(self, spider):
+        self.file = open('images.json', 'w', encoding='utf-8')
+        self.file.write('[\n')
+        logging.info("JSON file opened")
+
+    def close_spider(self, spider):
+        self.file.write('\n]')
+        self.file.close()
+        logging.info("JSON file closed")
+
+    def process_item(self, item, spider):
+        line = json.dumps(dict(item), ensure_ascii=False) + ",\n"
+        self.file.write(line)
+        logging.info(f"Item written to JSON: {item}")
+        return item

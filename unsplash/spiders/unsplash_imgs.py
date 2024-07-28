@@ -10,7 +10,6 @@ import csv
 import os
 import requests
 
-
 class UnsplashImgsSpider(CrawlSpider):
     name = "unsplash_imgs"
     allowed_domains = ["unsplash.com"]
